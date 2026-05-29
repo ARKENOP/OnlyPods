@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  DB_HOST: mysql-service
+  DB_NAME: onlypods
+  DB_USER: onlypods
+  REDIS_HOST: redis-service
+  REDIS_PORT: "6379"
+  PORT: "3000"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+type: Opaque
+data:
+  DB_PASSWORD: Y2hhbmdlbWU=
