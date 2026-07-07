@@ -8,8 +8,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME_FRONT: ${{ github.repository_owner }}/onlypods-frontend
-  IMAGE_NAME_BACK: ${{ github.repository_owner }}/onlypods-backend
+  IMAGE_NAME_FRONT: arkenop/onlypods-frontend
+  IMAGE_NAME_BACK: arkenop/onlypods-backend
 
 jobs:
   build-and-push:
