@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: app-ingress
 spec:
-  ingressClassName: nginx
+  ingressClassName: traefik
   rules:
     - host: onlypods.local
       http:

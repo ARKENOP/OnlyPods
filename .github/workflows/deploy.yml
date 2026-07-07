@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_FRONT: ${{ github.repository_owner }}/onlypods-frontend
+  IMAGE_NAME_BACK: ${{ github.repository_owner }}/onlypods-backend
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACK }}:latest
+          
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONT }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to K3D Cluster
+        run: |
+          # 1. Appliquer tous les manifestes Kubernetes
+          sg docker -c "kubectl apply -f k8s/"
+          
+          # 2. Forcer Kubernetes à relancer les pods pour récupérer la nouvelle image (Rollout)
+          sg docker -c "kubectl rollout restart deployment/api"
+          sg docker -c "kubectl rollout restart deployment/frontend"
+          
+          # 3. Attendre que le déploiement soit terminé et que les nouveaux pods soient prêts
+          sg docker -c "kubectl rollout status deployment/api --timeout=90s"
+          sg docker -c "kubectl rollout status deployment/frontend --timeout=90s"
