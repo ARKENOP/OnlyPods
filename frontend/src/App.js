@@ -86,7 +86,7 @@ function App() {
       <header className="app-header">
         <div>
           <p className="app-tagline">Mini réseau social conteneurisé</p>
-          <h1>OnlyPods</h1>
+          <h1>OnlyPods - Démo</h1>
         </div>
       </header>
 
